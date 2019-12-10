@@ -1,4 +1,5 @@
 use std::io;
+use adversarial_search::alphabeta::alphabeta;
 
 pub fn run() {
     println!("Search depth: ");
@@ -11,51 +12,21 @@ pub fn run() {
     println!(
         "{:?} {}",
         root.board,
-        minimax(root, depth, i8::min_value(), i8::max_value())
+        evaluate_node(root, depth)
     );
 }
 
-fn max(a: i8, b: i8) -> i8 {
-    if a > b {
-        a
-    } else {
-        b
-    }
-}
-
-fn min(a: i8, b: i8) -> i8 {
-    if a < b {
-        a
-    } else {
-        b
-    }
-}
-
-fn minimax(node: Node, depth: i32, mut alpha: i8, mut beta: i8) -> i8 {
-    if depth == 0 || node.is_terminal() {
-        return node.value();
-    }
-    if node.player == Player::HUMAN {
-        let mut value = i8::min_value();
-        for child in node.get_children() {
-            value = max(value, minimax(child, depth - 1, alpha, beta));
-            alpha = max(alpha, value);
-            if alpha >= beta {
-                break;
-            }
-        }
-        return value;
-    } else {
-        let mut value = i8::max_value();
-        for child in node.get_children() {
-            value = min(value, minimax(child, depth - 1, alpha, beta));
-            beta = min(beta, value);
-            if alpha >= beta {
-                break;
-            }
-        }
-        return value;
-    }
+fn evaluate_node(node: Node, depth: i32) -> f32 {
+    alphabeta(
+        &node,
+        depth,
+        &|n| n.get_children(),
+        &|n| n.get_terminality(),
+        &|n| n.value() as i32,
+        node.player == Player::HUMAN,
+        -std::f32::INFINITY,
+        std::f32::INFINITY,
+    )
 }
 
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -184,6 +155,21 @@ impl Node {
 
     pub fn is_terminal(&self) -> bool {
         self.available_moves().len() == 0
+    }
+
+    pub fn get_terminality(&self) -> Option<f32> {
+        if self.is_terminal() {
+            let val = self.value();
+            if val > 0 {
+                Some(std::f32::INFINITY)
+            } else if val < 0 {
+                Some(-std::f32::INFINITY)
+            } else {
+                Some(0.0)
+            }
+        } else {
+            None
+        }
     }
 
     pub fn value(&self) -> i8 {
