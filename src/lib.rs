@@ -1,5 +1,5 @@
-use std::io;
 use adversarial_search::prelude::alphabeta;
+use std::io;
 
 pub fn run() {
     println!("Search depth: ");
@@ -9,11 +9,7 @@ pub fn run() {
         .expect("Failed to read line");
     let depth = input.trim().parse::<i32>().unwrap();
     let root = Node::new();
-    println!(
-        "{:?} {}",
-        root.board,
-        evaluate_node(root, depth)
-    );
+    println!("{:?} {}", root.board, evaluate_node(root, depth));
 }
 
 fn evaluate_node(node: Node, depth: i32) -> f32 {
