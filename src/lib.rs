@@ -1,5 +1,5 @@
 use std::io;
-use adversarial_search::alphabeta::alphabeta;
+use adversarial_search::prelude::alphabeta;
 
 pub fn run() {
     println!("Search depth: ");
@@ -22,7 +22,7 @@ fn evaluate_node(node: Node, depth: i32) -> f32 {
         depth,
         &|n| n.get_children(),
         &|n| n.get_terminality(),
-        &|n| n.value() as i32,
+        &|n| n.value() as f32,
         node.player == Player::HUMAN,
         -std::f32::INFINITY,
         std::f32::INFINITY,
